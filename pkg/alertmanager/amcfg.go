@@ -2829,3 +2829,33 @@ func checkIsV2Matcher(in ...[]monitoringv1alpha1.Matcher) bool {
 	}
 	return false
 }
+
+
+// NewConfigBuilder creates a new ConfigBuilder.
+// This function wraps the existing newConfigBuilder (which was unexported) and returns an exported type.
+func NewConfigBuilder(logger *slog.Logger, amVersion semver.Version, store *assets.StoreBuilder, matcherStrategy monitoringv1.AlertmanagerConfigMatcherStrategy) *configBuilder {
+	return newConfigBuilder(logger, amVersion, store, matcherStrategy)
+}
+
+// InitializeFromAlertmanagerConfig converts the given AlertmanagerConfig CR (and an optional global config)
+// into the internal Alertmanager configuration. It wraps the internal initializeFromAlertmanagerConfig.
+func (cb *configBuilder) InitializeFromAlertmanagerConfig(ctx context.Context, globalConfig *monitoringv1.AlertmanagerGlobalConfig, amConfig *monitoringv1alpha1.AlertmanagerConfig) error {
+	return cb.initializeFromAlertmanagerConfig(ctx, globalConfig, amConfig)
+}
+
+// Config returns the generated Alertmanager configuration.
+func (cb *configBuilder) Config() *alertmanagerConfig {
+	return cb.cfg
+}
+
+// InitializeFromRawConfiguration initializes the ConfigBuilder with raw YAML configuration.
+// It wraps the internal initializeFromRawConfiguration function.
+func (cb *configBuilder) InitializeFromRawConfiguration(b []byte) error {
+	// Cast the exported ConfigBuilder to the internal configBuilder type and call the method.
+	return cb.initializeFromRawConfiguration(b)
+}
+
+// addAlertmanagerConfigs adds AlertmanagerConfig objects to the current configuration.
+func (cb *configBuilder) AddAlertmanagerConfigs(ctx context.Context, amConfigs map[string]*monitoringv1alpha1.AlertmanagerConfig) error {
+	return cb.addAlertmanagerConfigs(ctx, amConfigs)
+}
